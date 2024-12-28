@@ -22,7 +22,7 @@ export async function analyzeDocument(fileContent: string, fileName: string) {
   try {
     const apiKey = await getGeminiApiKey();
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     const prompt = `As a professional editor, I require your assistance with a detailed analysis of the attached document. Please perform the following tasks:
 1. Summarization: Provide a concise summary of the document's main points, emphasizing key events, characters, and themes.
