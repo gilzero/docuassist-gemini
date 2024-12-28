@@ -82,18 +82,6 @@ const Index = () => {
             </p>
           </div>
 
-          {!import.meta.env.VITE_GEMINI_API_KEY && (
-            <Alert 
-              variant="default" 
-              className="bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800 animate-in fade-in-50"
-            >
-              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <AlertDescription className="text-amber-800 dark:text-amber-300">
-                Please configure your Gemini API key in the environment variables (VITE_GEMINI_API_KEY)
-              </AlertDescription>
-            </Alert>
-          )}
-
           <div className="grid lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
