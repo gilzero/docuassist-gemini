@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import * as docx from 'docx-wasm';
+import { convertDocToDocx } from '@/utils/documentConverter';
+import { DropzoneContent } from './DropzoneContent';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -13,27 +13,13 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
 
-  const convertDocToDocx = async (docFile: File): Promise<File> => {
+  const handleDocConversion = async (file: File) => {
     setIsConverting(true);
     try {
-      // Initialize docx-wasm
-      await docx.default();
-      
-      const arrayBuffer = await docFile.arrayBuffer();
-      const doc = await docx.load(new Uint8Array(arrayBuffer));
-      const docxBuffer = await doc.saveAsDocx();
-      
-      // Create a new file with the converted content
-      const convertedFile = new File(
-        [docxBuffer],
-        docFile.name.replace('.doc', '.docx'),
-        { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
-      );
-      
+      const convertedFile = await convertDocToDocx(file);
       toast.success('Successfully converted .doc to .docx');
       return convertedFile;
     } catch (error) {
-      console.error('Conversion error:', error);
       toast.error('Failed to convert .doc file. Please try uploading a .docx file instead.');
       throw error;
     } finally {
@@ -43,29 +29,24 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
-        toast.error('File size must be less than 10MB');
-        return;
-      }
+    if (!file) return;
 
-      const fileType = file.name.split('.').pop()?.toLowerCase();
-      if (!['doc', 'docx', 'pdf'].includes(fileType || '')) {
-        toast.error('Please upload a .doc, .docx, or .pdf file');
-        return;
-      }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
 
-      try {
-        // If it's a .doc file, convert it first
-        if (fileType === 'doc') {
-          const convertedFile = await convertDocToDocx(file);
-          onFileSelect(convertedFile);
-        } else {
-          onFileSelect(file);
-        }
-      } catch (error) {
-        console.error('File processing error:', error);
-      }
+    const fileType = file.name.split('.').pop()?.toLowerCase();
+    if (!['doc', 'docx', 'pdf'].includes(fileType || '')) {
+      toast.error('Please upload a .doc, .docx, or .pdf file');
+      return;
+    }
+
+    try {
+      const finalFile = fileType === 'doc' ? await handleDocConversion(file) : file;
+      onFileSelect(finalFile);
+    } catch (error) {
+      console.error('File processing error:', error);
     }
   }, [onFileSelect]);
 
@@ -88,43 +69,13 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
       {...getRootProps()}
       className={`
         relative rounded-lg border-2 border-dashed p-8 transition-all duration-200
-        ${isDragActive 
-          ? 'border-primary bg-primary/5' 
-          : 'border-gray-300 dark:border-gray-600'
-        }
-        ${isDisabled 
-          ? 'opacity-50 cursor-not-allowed' 
-          : 'cursor-pointer hover:border-primary/50'
-        }
+        ${isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 dark:border-gray-600'}
+        ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary/50'}
       `}
     >
       <input {...getInputProps()} disabled={isDisabled} />
       <div className="flex flex-col items-center gap-4 text-center">
-        {isDisabled ? (
-          <>
-            <Loader2 className="h-10 w-10 text-primary animate-spin" />
-            <p className="text-lg font-medium text-gray-900 dark:text-white">
-              {isConverting ? 'Converting document...' : 'Processing document...'}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">This may take a few moments</p>
-          </>
-        ) : (
-          <>
-            <Upload className="h-10 w-10 text-primary" />
-            <div>
-              <p className="text-lg font-medium text-gray-900 dark:text-white">
-                Drag & drop your document here
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                or click to select a file
-              </p>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <FileText className="h-4 w-4" />
-              <span>Supports .doc, .docx, and .pdf</span>
-            </div>
-          </>
-        )}
+        <DropzoneContent isProcessing={isProcessing} isConverting={isConverting} />
       </div>
     </div>
   );
