@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import * as docx from 'docx-wasm';
+import { init, WordDocument } from 'docx-wasm';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -16,12 +16,16 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
   const convertDocToDocx = async (docFile: File): Promise<File> => {
     setIsConverting(true);
     try {
+      // Initialize docx-wasm
+      await init();
+      
       const arrayBuffer = await docFile.arrayBuffer();
-      const result = await docx.convertDocToDocx(new Uint8Array(arrayBuffer));
+      const doc = await WordDocument.load(new Uint8Array(arrayBuffer));
+      const docxBuffer = await doc.saveAsDocx();
       
       // Create a new file with the converted content
       const convertedFile = new File(
-        [result.buffer],
+        [docxBuffer],
         docFile.name.replace('.doc', '.docx'),
         { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
       );
