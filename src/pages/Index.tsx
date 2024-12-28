@@ -4,7 +4,7 @@ import { ResponseDisplay } from '@/components/ResponseDisplay';
 import { analyzeDocument } from '@/lib/gemini';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Sparkles, Brain } from 'lucide-react';
 import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -70,21 +70,27 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-              AI Document Analysis
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
-              Upload your document and get instant AI-powered analysis
+    <div className="min-h-screen bg-gradient-to-br from-[#fdfcfb] to-[#e2d1c3] dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-5xl mx-auto space-y-10">
+          <div className="text-center space-y-6">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <Brain className="w-12 h-12 text-primary animate-pulse" />
+              <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+                Dreamer AI
+              </h1>
+            </div>
+            <h2 className="text-2xl font-medium text-gray-600 dark:text-gray-300 flex items-center justify-center gap-2">
+              Editor AI Agent <Sparkles className="w-5 h-5 text-yellow-500" />
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Transform your documents with advanced AI analysis. Upload your file and let our intelligent agent enhance your content.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+              <div className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/90 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-lg">
                 <FileUpload onFileSelect={handleFileSelect} isProcessing={isProcessing} />
               </div>
               
@@ -96,17 +102,18 @@ const Index = () => {
               )}
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg h-[calc(100vh-16rem)] min-h-[500px]">
+            <div className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/90 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-lg h-[calc(100vh-16rem)] min-h-[500px]">
               {response ? (
                 <ResponseDisplay response={response} />
               ) : (
-                <div className="h-full flex flex-col items-center justify-center p-8 text-center text-gray-500 dark:text-gray-400">
+                <div className="h-full flex flex-col items-center justify-center p-8 text-center">
                   <div className="max-w-md space-y-4">
-                    <p className="text-lg">
-                      Upload a document to see the AI analysis
+                    <Sparkles className="w-12 h-12 text-primary/50 mx-auto mb-4" />
+                    <p className="text-xl font-medium text-gray-600 dark:text-gray-300">
+                      Ready to analyze your document
                     </p>
-                    <p className="text-sm">
-                      Supports PDF and DOCX files
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Upload a PDF or DOCX file to see the AI magic happen
                     </p>
                   </div>
                 </div>
