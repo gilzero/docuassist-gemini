@@ -19,8 +19,8 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
         return;
       }
       const fileType = file.name.split('.').pop()?.toLowerCase();
-      if (!['doc', 'docx', 'pdf'].includes(fileType || '')) {
-        toast.error('Please upload a .doc, .docx, or .pdf file');
+      if (!['docx', 'pdf'].includes(fileType || '')) {
+        toast.error('Please upload a .docx or .pdf file');
         return;
       }
       onFileSelect(file);
@@ -33,7 +33,6 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
     onDragLeave: () => setIsDragActive(false),
     accept: {
       'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
     },
     multiple: false
@@ -75,7 +74,7 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <FileText className="h-4 w-4" />
-              <span>Supports .doc, .docx, and .pdf</span>
+              <span>Supports .docx and .pdf</span>
             </div>
           </>
         )}
