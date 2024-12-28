@@ -3,6 +3,7 @@ import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import ReactMarkdown from 'react-markdown';
 
 interface ResponseDisplayProps {
   response: string;
@@ -34,7 +35,7 @@ export const ResponseDisplay = ({ response }: ResponseDisplayProps) => {
       </div>
       <ScrollArea className="flex-1 p-6">
         <div className="prose prose-gray dark:prose-invert max-w-none">
-          <div className="whitespace-pre-wrap">{response}</div>
+          <ReactMarkdown>{response}</ReactMarkdown>
         </div>
       </ScrollArea>
     </div>
