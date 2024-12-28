@@ -6,10 +6,10 @@ import { toast } from 'sonner';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from 'lucide-react';
 import mammoth from 'mammoth';
-import { pdfjs } from 'pdfjs-dist';
+import * as pdfjsLib from 'pdfjs-dist';
 
 // Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const Index = () => {
   const [response, setResponse] = useState<string>('');
@@ -18,7 +18,7 @@ const Index = () => {
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     let text = '';
     
     for (let i = 1; i <= pdf.numPages; i++) {
