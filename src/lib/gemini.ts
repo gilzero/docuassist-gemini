@@ -1,10 +1,16 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+if (!GEMINI_API_KEY) {
+  console.error('Gemini API key is not configured. Please set VITE_GEMINI_API_KEY in your environment variables.');
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
 
 export async function analyzeDocument(fileContent: string, fileName: string) {
-  if (!import.meta.env.VITE_GEMINI_API_KEY) {
-    throw new Error('Gemini API key is not configured');
+  if (!GEMINI_API_KEY) {
+    throw new Error('Please configure your Gemini API key in the environment variables (VITE_GEMINI_API_KEY)');
   }
 
   try {
@@ -34,6 +40,6 @@ Filename: ${fileName}`;
     return response.text();
   } catch (error) {
     console.error('Error analyzing document:', error);
-    throw error;
+    throw new Error('Failed to analyze document. Please check your API key and try again.');
   }
 }
