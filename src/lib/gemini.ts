@@ -1,19 +1,27 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { supabase } from "@/integrations/supabase/client";
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+let GEMINI_API_KEY: string | null = null;
 
-if (!GEMINI_API_KEY) {
-  console.error('Gemini API key is not configured. Please set VITE_GEMINI_API_KEY in your environment variables.');
+async function getGeminiApiKey() {
+  if (GEMINI_API_KEY) return GEMINI_API_KEY;
+  
+  const { data, error } = await supabase.functions.invoke('get-secret', {
+    body: { secretName: 'VITE_GEMINI_API_KEY' }
+  });
+  
+  if (error || !data?.secret) {
+    throw new Error('Gemini API key is not configured. Please set VITE_GEMINI_API_KEY in your project settings.');
+  }
+  
+  GEMINI_API_KEY = data.secret;
+  return GEMINI_API_KEY;
 }
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
-
 export async function analyzeDocument(fileContent: string, fileName: string) {
-  if (!GEMINI_API_KEY) {
-    throw new Error('Please configure your Gemini API key in the environment variables (VITE_GEMINI_API_KEY)');
-  }
-
   try {
+    const apiKey = await getGeminiApiKey();
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
     
     const prompt = `As a professional editor, I require your assistance with a detailed analysis of the attached document. Please perform the following tasks:
@@ -40,6 +48,6 @@ Filename: ${fileName}`;
     return response.text();
   } catch (error) {
     console.error('Error analyzing document:', error);
-    throw new Error('Failed to analyze document. Please check your API key and try again.');
+    throw error;
   }
 }
