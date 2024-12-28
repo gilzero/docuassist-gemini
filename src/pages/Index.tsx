@@ -5,17 +5,57 @@ import { analyzeDocument } from '@/lib/gemini';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from 'lucide-react';
+import mammoth from 'mammoth';
+import { pdfjs } from 'pdfjs-dist';
+
+// Initialize PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const Index = () => {
   const [response, setResponse] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+    let text = '';
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map((item: any) => item.str).join(' ') + '\n';
+    }
+    
+    return text;
+  };
+
+  const extractTextFromDOCX = async (file: File): Promise<string> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return result.value;
+  };
+
   const handleFileSelect = async (file: File) => {
     setIsProcessing(true);
     setError(null);
     try {
-      const text = await file.text();
+      let text = '';
+      const fileType = file.name.split('.').pop()?.toLowerCase();
+      
+      if (fileType === 'pdf') {
+        text = await extractTextFromPDF(file);
+      } else if (fileType === 'docx') {
+        text = await extractTextFromDOCX(file);
+      } else if (fileType === 'doc') {
+        throw new Error('Legacy .doc files are not supported. Please convert to .docx');
+      }
+
+      if (!text.trim()) {
+        throw new Error('No text content could be extracted from the file');
+      }
+
+      console.log('Extracted text:', text); // For debugging
       const analysis = await analyzeDocument(text, file.name);
       setResponse(analysis);
       toast.success('Document analysis complete');
@@ -23,6 +63,7 @@ const Index = () => {
       const errorMessage = error instanceof Error ? error.message : 'Failed to process document';
       setError(errorMessage);
       toast.error(errorMessage);
+      console.error('Document processing error:', error);
     } finally {
       setIsProcessing(false);
     }
