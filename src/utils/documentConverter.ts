@@ -1,12 +1,12 @@
-import * as docx from 'docx-wasm';
+import { init, Document } from 'docx-wasm';
 
 export const convertDocToDocx = async (docFile: File): Promise<File> => {
   try {
     // Initialize docx-wasm
-    await docx.default();
+    await init();
     
     const arrayBuffer = await docFile.arrayBuffer();
-    const doc = await docx.Document.load(new Uint8Array(arrayBuffer));
+    const doc = await Document.load(new Uint8Array(arrayBuffer));
     const docxBuffer = await doc.saveAsDocx();
     
     // Create a new file with the converted content
