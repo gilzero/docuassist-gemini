@@ -1,10 +1,17 @@
 import React from 'react';
-import { Copy, Server } from 'lucide-react';
+import { Copy, Server, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ReactMarkdown from 'react-markdown';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { cn } from '@/lib/utils';
 
 interface ResponseDisplayProps {
   response: string;
@@ -19,6 +26,9 @@ export const ResponseDisplay = ({ response }: ResponseDisplayProps) => {
       toast.error('Failed to copy to clipboard');
     }
   };
+
+  // Split response into sections based on headers
+  const sections = response.split(/(?=# )/g).filter(Boolean);
 
   return (
     <motion.div 
@@ -44,26 +54,54 @@ export const ResponseDisplay = ({ response }: ResponseDisplayProps) => {
           Copy
         </Button>
       </div>
+      
       <ScrollArea className="flex-1 p-6">
-        <div className="prose prose-gray dark:prose-invert max-w-none">
-          <ReactMarkdown
-            components={{
-              h1: ({ children }) => <h1 className="text-2xl font-bold mb-4">{children}</h1>,
-              h2: ({ children }) => <h2 className="text-xl font-semibold mb-3">{children}</h2>,
-              p: ({ children }) => <p className="mb-4 leading-relaxed">{children}</p>,
-              ul: ({ children }) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
-              ol: ({ children }) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
-              li: ({ children }) => <li className="mb-2">{children}</li>,
-              blockquote: ({ children }) => (
-                <blockquote className="border-l-4 border-gray-200 dark:border-gray-700 pl-4 italic my-4">
-                  {children}
-                </blockquote>
-              ),
-            }}
-          >
-            {response}
-          </ReactMarkdown>
-        </div>
+        <AnimatePresence mode="wait">
+          {sections.length > 1 ? (
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              {sections.map((section, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`section-${index}`}
+                  className="border rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+                >
+                  <AccordionTrigger className="px-4 hover:no-underline">
+                    <div className="flex items-center gap-2 text-lg font-medium">
+                      {section.split('\n')[0].replace('# ', '')}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className={cn(
+                      "prose prose-gray dark:prose-invert max-w-none",
+                      "prose-headings:font-semibold prose-headings:text-gray-900 dark:prose-headings:text-gray-100",
+                      "prose-p:text-gray-700 dark:prose-p:text-gray-300",
+                      "prose-strong:text-gray-900 dark:prose-strong:text-gray-100",
+                      "prose-ul:list-disc prose-ul:pl-6",
+                      "prose-ol:list-decimal prose-ol:pl-6",
+                      "prose-blockquote:border-l-4 prose-blockquote:border-gray-200 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic"
+                    )}>
+                      <ReactMarkdown>
+                        {section.split('\n').slice(1).join('\n')}
+                      </ReactMarkdown>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          ) : (
+            <div className={cn(
+              "prose prose-gray dark:prose-invert max-w-none",
+              "prose-headings:font-semibold prose-headings:text-gray-900 dark:prose-headings:text-gray-100",
+              "prose-p:text-gray-700 dark:prose-p:text-gray-300",
+              "prose-strong:text-gray-900 dark:prose-strong:text-gray-100",
+              "prose-ul:list-disc prose-ul:pl-6",
+              "prose-ol:list-decimal prose-ol:pl-6",
+              "prose-blockquote:border-l-4 prose-blockquote:border-gray-200 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic"
+            )}>
+              <ReactMarkdown>{response}</ReactMarkdown>
+            </div>
+          )}
+        </AnimatePresence>
       </ScrollArea>
     </motion.div>
   );
