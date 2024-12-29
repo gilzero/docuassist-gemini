@@ -18,9 +18,13 @@ serve(async (req) => {
     const formData = await req.formData()
     const file = formData.get('file')
 
-    if (!file) {
-      throw new Error('No file uploaded')
+    if (!file || !(file instanceof File)) {
+      throw new Error('No valid file uploaded')
     }
+
+    console.log('Processing file:', file.name)
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = new Uint8Array(arrayBuffer)
 
     console.log('Initializing Adobe PDF Services')
     const credentials = PDFServicesSdk.Credentials
@@ -32,9 +36,13 @@ serve(async (req) => {
     const executionContext = PDFServicesSdk.ExecutionContext.create(credentials)
     const operation = PDFServicesSdk.CreatePDF.Operation.createNew()
 
+    // Create a temporary file from the buffer
+    const tempFile = await Deno.makeTempFile()
+    await Deno.writeFile(tempFile, buffer)
+
     // Set up the input word document
-    const input = PDFServicesSdk.FileRef.createFromStream(
-      file.stream(),
+    const input = PDFServicesSdk.FileRef.createFromLocalFile(
+      tempFile,
       PDFServicesSdk.CreatePDF.SupportedSourceFormat.DOC
     )
     operation.setInput(input)
@@ -45,6 +53,9 @@ serve(async (req) => {
     
     // Get the converted content
     const convertedContent = await result.getContent()
+
+    // Clean up the temporary file
+    await Deno.remove(tempFile)
 
     console.log('Conversion successful')
     return new Response(
@@ -66,7 +77,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to convert document' 
+        error: error.message || 'Failed to convert document',
+        details: error.stack
       }),
       { 
         headers: { 
