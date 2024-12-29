@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { PDFServicesSdk } from 'npm:@adobe/pdfservices-node-sdk'
 
 const corsHeaders = {
@@ -26,6 +25,10 @@ serve(async (req) => {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = new Uint8Array(arrayBuffer)
 
+    // Create a temporary file from the buffer
+    const tempFile = await Deno.makeTempFile()
+    await Deno.writeFile(tempFile, buffer)
+
     console.log('Initializing Adobe PDF Services')
     const credentials = PDFServicesSdk.Credentials
       .servicePrincipalCredentialsBuilder()
@@ -35,10 +38,6 @@ serve(async (req) => {
 
     const executionContext = PDFServicesSdk.ExecutionContext.create(credentials)
     const operation = PDFServicesSdk.CreatePDF.Operation.createNew()
-
-    // Create a temporary file from the buffer
-    const tempFile = await Deno.makeTempFile()
-    await Deno.writeFile(tempFile, buffer)
 
     // Set up the input word document
     const input = PDFServicesSdk.FileRef.createFromLocalFile(
@@ -71,7 +70,6 @@ serve(async (req) => {
         } 
       }
     )
-
   } catch (error) {
     console.error('Conversion error:', error)
     return new Response(
