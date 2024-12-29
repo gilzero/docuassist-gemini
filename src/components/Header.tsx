@@ -1,4 +1,4 @@
-import { Brain, Sparkles } from 'lucide-react';
+import { Raven, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const Header = () => {
@@ -29,7 +29,7 @@ export const Header = () => {
           className="relative"
           aria-hidden="true"
         >
-          <Brain className="w-12 h-12 text-primary" />
+          <Raven className="w-12 h-12 text-primary" />
           <motion.div
             className="absolute -inset-1 bg-primary/20 rounded-full blur-md -z-10"
             animate={{
