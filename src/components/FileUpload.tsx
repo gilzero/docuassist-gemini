@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
-import { convertDocToDocx } from '@/utils/documentConverter';
 import { DropzoneContent } from './DropzoneContent';
 import { cn } from '@/lib/utils';
 
@@ -12,23 +11,6 @@ interface FileUploadProps {
 
 export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
   const [isDragActive, setIsDragActive] = useState(false);
-  const [isConverting, setIsConverting] = useState(false);
-
-  const handleDocConversion = async (file: File) => {
-    setIsConverting(true);
-    try {
-      console.log('Starting conversion for file:', file.name);
-      const convertedFile = await convertDocToDocx(file);
-      toast.success('Successfully converted document');
-      return convertedFile;
-    } catch (error) {
-      console.error('Document conversion error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to convert document');
-      throw error;
-    } finally {
-      setIsConverting(false);
-    }
-  };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -40,18 +22,21 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
     }
 
     const fileType = file.name.split('.').pop()?.toLowerCase();
-    if (!['doc', 'docx', 'pdf'].includes(fileType || '')) {
-      toast.error('Please upload a .doc, .docx, or .pdf file');
+    if (fileType === 'doc') {
+      toast.error('Legacy .doc files are not supported. Please convert to .docx first');
+      return;
+    }
+    
+    if (!['pdf', 'docx'].includes(fileType || '')) {
+      toast.error('Please upload a .docx or .pdf file');
       return;
     }
 
     try {
-      const finalFile = ['doc', 'docx'].includes(fileType || '') 
-        ? await handleDocConversion(file) 
-        : file;
-      onFileSelect(finalFile);
+      onFileSelect(file);
     } catch (error) {
       console.error('File processing error:', error);
+      toast.error('Failed to process file');
     }
   }, [onFileSelect]);
 
@@ -61,13 +46,10 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
     onDragLeave: () => setIsDragActive(false),
     accept: {
       'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
     },
     multiple: false
   });
-
-  const isDisabled = isProcessing || isConverting;
 
   return (
     <div
@@ -77,13 +59,13 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
         'bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900',
         'shadow-sm hover:shadow-md',
         isDragActive ? 'border-primary bg-primary/5 scale-102' : 'border-gray-300 dark:border-gray-600',
-        isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary/50',
+        isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary/50',
         'group'
       )}
     >
-      <input {...getInputProps()} disabled={isDisabled} />
+      <input {...getInputProps()} disabled={isProcessing} />
       <div className="flex flex-col items-center gap-6 text-center">
-        <DropzoneContent isProcessing={isProcessing} isConverting={isConverting} />
+        <DropzoneContent isProcessing={isProcessing} isConverting={false} />
       </div>
     </div>
   );

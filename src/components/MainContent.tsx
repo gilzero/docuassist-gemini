@@ -59,8 +59,8 @@ export const MainContent = () => {
         text = await extractTextFromPDF(file);
       } else if (fileType === 'docx') {
         text = await extractTextFromDOCX(file);
-      } else if (fileType === 'doc') {
-        throw new Error('Legacy .doc files are not supported. Please convert to .docx');
+      } else {
+        throw new Error('Unsupported file type. Please upload a PDF or DOCX file.');
       }
 
       if (!text.trim()) {
