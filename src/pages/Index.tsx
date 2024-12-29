@@ -1,5 +1,5 @@
 import { Header } from '@/components/Header';
-import { MainContent } from '@/components/MainContent';
+import { DocumentAnalysis } from '@/features/document-analysis/DocumentAnalysis';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
@@ -9,7 +9,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto space-y-10">
           <Header />
-          <MainContent />
+          <DocumentAnalysis />
         </div>
       </div>
     </div>
