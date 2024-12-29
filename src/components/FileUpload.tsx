@@ -18,7 +18,7 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
     setIsConverting(true);
     try {
       const convertedFile = await convertDocToDocx(file);
-      toast.success('Successfully converted .doc to .docx');
+      toast.success('Successfully converted .doc file');
       return convertedFile;
     } catch (error) {
       toast.error('Failed to convert .doc file. Please try uploading a .docx file instead.');
