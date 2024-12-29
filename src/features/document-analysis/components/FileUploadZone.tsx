@@ -1,6 +1,6 @@
 import React from 'react';
-import { FileUpload } from './FileUpload';
-import { UploadProgress } from './UploadProgress';
+import { FileUpload } from '@/components/FileUpload';
+import { UploadProgress } from '@/components/UploadProgress';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
