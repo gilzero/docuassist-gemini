@@ -1,1 +1,3 @@
 project_id = "dxrfbyfdiusjawpplzen"
+[functions.analyze-document]
+region = "southeast-asia"
