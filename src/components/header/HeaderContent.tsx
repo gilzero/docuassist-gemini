@@ -28,14 +28,13 @@ export const HeaderContent = () => {
       </motion.h2>
 
       <motion.p 
-        className="text-lg text-gray-800 dark:text-gray-200 max-w-2xl mx-auto leading-relaxed"
+        className="text-lg text-gray-800 dark:text-gray-200 max-w-2xl mx-auto leading-relaxed space-y-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        Transform your documents into <span className="font-semibold">actionable insights</span>. 
-        Simply <span className="font-semibold">drop your files</span> and let our intelligent agent 
-        extract valuable information for you.
+        <span className="block">Transform your documents into <span className="font-semibold">actionable insights</span>.</span>
+        <span className="block">Simply <span className="font-semibold">drop your files</span> and let our intelligent agent extract valuable information for you.</span>
       </motion.p>
     </>
   );
