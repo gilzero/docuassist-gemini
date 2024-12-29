@@ -5,9 +5,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-async function getAdobeAccessToken(clientId: string, clientSecret: string) {
+async function getAdobeAccessToken() {
   console.log('Getting Adobe access token...');
+  const clientId = Deno.env.get('PDF_SERVICES_CLIENT_ID');
+  const clientSecret = Deno.env.get('PDF_SERVICES_CLIENT_SECRET');
   
+  if (!clientId || !clientSecret) {
+    throw new Error('Adobe credentials not configured');
+  }
+
   try {
     const formData = new URLSearchParams();
     formData.append('grant_type', 'client_credentials');
@@ -38,7 +44,7 @@ async function getAdobeAccessToken(clientId: string, clientSecret: string) {
   }
 }
 
-async function convertToPDF(file: File, token: string, clientId: string) {
+async function convertToPDF(file: File, token: string) {
   console.log('Starting PDF conversion...', {
     fileName: file.name,
     fileType: file.type,
@@ -46,17 +52,23 @@ async function convertToPDF(file: File, token: string, clientId: string) {
   });
   
   try {
-    // Create a new FormData instance for the file upload
     const formData = new FormData();
     
-    // Ensure proper content type for Word documents
-    const contentType = file.type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    // Create a new blob with the correct content type for Word documents
+    let contentType;
+    if (file.name.endsWith('.doc')) {
+      contentType = 'application/msword';
+    } else if (file.name.endsWith('.docx')) {
+      contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    } else {
+      throw new Error('Unsupported file type. Only .doc and .docx files are supported.');
+    }
     
-    // Create a new Blob with the correct content type
+    // Create a new blob with the correct content type
     const blob = new Blob([await file.arrayBuffer()], { type: contentType });
+    const newFile = new File([blob], file.name, { type: contentType });
     
-    // Append the file with the correct content type
-    formData.append('file', blob, file.name);
+    formData.append('file', newFile);
 
     console.log('Sending request to Adobe PDF Services API...');
     
@@ -64,7 +76,8 @@ async function convertToPDF(file: File, token: string, clientId: string) {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'x-api-key': clientId,
+        'x-api-key': Deno.env.get('PDF_SERVICES_CLIENT_ID') || '',
+        'Accept': 'application/json',
       },
       body: formData,
     });
@@ -92,17 +105,6 @@ serve(async (req) => {
   try {
     console.log('Starting document conversion process');
     
-    // Get Adobe credentials from environment variables
-    const clientId = Deno.env.get('PDF_SERVICES_CLIENT_ID');
-    const clientSecret = Deno.env.get('PDF_SERVICES_CLIENT_SECRET');
-
-    if (!clientId || !clientSecret) {
-      console.error('Missing Adobe credentials');
-      throw new Error('Adobe credentials not configured');
-    }
-
-    console.log('Got Adobe credentials from environment');
-
     // Get the uploaded file from the request
     const formData = await req.formData();
     const file = formData.get('file');
@@ -119,10 +121,10 @@ serve(async (req) => {
     });
 
     // Get Adobe access token
-    const token = await getAdobeAccessToken(clientId, clientSecret);
+    const token = await getAdobeAccessToken();
     
     // Convert the document
-    const pdfBlob = await convertToPDF(file, token, clientId);
+    const pdfBlob = await convertToPDF(file, token);
 
     // Return the converted PDF
     return new Response(pdfBlob, {
