@@ -1,29 +1,30 @@
 import mammoth from 'mammoth';
+import { MarkItDown } from 'markitdown';
 
 export const convertDocToDocx = async (docFile: File): Promise<File> => {
   try {
-    // Read the file content
     const arrayBuffer = await docFile.arrayBuffer();
     
-    // Convert DOC to HTML first using mammoth
-    const result = await mammoth.convertToHtml({ arrayBuffer });
+    // For .doc files, use MarkItDown
+    if (docFile.name.toLowerCase().endsWith('.doc')) {
+      const md = new MarkItDown();
+      const result = await md.convert(new Blob([arrayBuffer]));
+      const plainText = result.text_content;
+      
+      // Create a new file with the converted content
+      const blob = new Blob([plainText], { type: 'text/plain' });
+      return new File([blob], docFile.name.replace('.doc', '.txt'), { type: 'text/plain' });
+    }
     
-    // Convert the HTML to plain text (removing HTML tags)
-    const plainText = result.value.replace(/<[^>]*>/g, ' ').trim();
-    
-    // Create a new Blob with the text content
-    const blob = new Blob([plainText], { type: 'text/plain' });
+    // For .docx files, use mammoth
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const plainText = result.value;
     
     // Create a new file with the converted content
-    const convertedFile = new File(
-      [blob],
-      docFile.name.replace('.doc', '.txt'),
-      { type: 'text/plain' }
-    );
-    
-    return convertedFile;
+    const blob = new Blob([plainText], { type: 'text/plain' });
+    return new File([blob], docFile.name.replace('.docx', '.txt'), { type: 'text/plain' });
   } catch (error) {
     console.error('Conversion error:', error);
-    throw new Error('Failed to convert .doc file. Please try uploading a .docx file instead.');
+    throw new Error('Failed to convert document. Please ensure the file is a valid .doc or .docx file.');
   }
 };

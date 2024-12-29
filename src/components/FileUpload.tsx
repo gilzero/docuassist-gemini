@@ -17,11 +17,13 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
   const handleDocConversion = async (file: File) => {
     setIsConverting(true);
     try {
+      console.log('Starting conversion for file:', file.name);
       const convertedFile = await convertDocToDocx(file);
-      toast.success('Successfully converted .doc file');
+      toast.success('Successfully converted document');
       return convertedFile;
     } catch (error) {
-      toast.error('Failed to convert .doc file. Please try uploading a .docx file instead.');
+      console.error('Document conversion error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to convert document');
       throw error;
     } finally {
       setIsConverting(false);
@@ -44,7 +46,9 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
     }
 
     try {
-      const finalFile = fileType === 'doc' ? await handleDocConversion(file) : file;
+      const finalFile = ['doc', 'docx'].includes(fileType || '') 
+        ? await handleDocConversion(file) 
+        : file;
       onFileSelect(finalFile);
     } catch (error) {
       console.error('File processing error:', error);
