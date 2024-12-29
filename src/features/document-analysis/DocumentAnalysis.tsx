@@ -5,11 +5,7 @@ import { AnalysisOutput } from './components/AnalysisOutput';
 import { EmptyAnalysis } from './components/EmptyAnalysis';
 import { analyzeDocument } from '@/lib/gemini';
 import { toast } from 'sonner';
-import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import { supabase } from "@/integrations/supabase/client";
 
 export const DocumentAnalysis = () => {
   const [response, setResponse] = useState<string>('');
@@ -17,26 +13,21 @@ export const DocumentAnalysis = () => {
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const extractTextFromPDF = async (file: File): Promise<string> => {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let text = '';
-    
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map((item: any) => item.str).join(' ') + '\n';
-      setUploadProgress(Math.round((i / pdf.numPages) * 100));
-    }
-    
-    return text;
-  };
+  const processDocument = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
 
-  const extractTextFromDOCX = async (file: File): Promise<string> => {
-    const arrayBuffer = await file.arrayBuffer();
-    const result = await mammoth.extractRawText({ arrayBuffer });
-    setUploadProgress(100);
-    return result.value;
+    const { data, error } = await supabase.functions.invoke('process-document', {
+      body: formData,
+    });
+
+    if (error) throw error;
+    if (!data?.elements) throw new Error('No text content could be extracted from the file');
+
+    // Convert elements to text
+    return data.elements
+      .map(element => element.text)
+      .join('\n');
   };
 
   const handleFileSelect = async (file: File) => {
@@ -45,23 +36,14 @@ export const DocumentAnalysis = () => {
     setUploadProgress(0);
     
     try {
-      let text = '';
-      const fileType = file.name.split('.').pop()?.toLowerCase();
+      setUploadProgress(25);
+      const text = await processDocument(file);
       
-      if (fileType === 'pdf') {
-        text = await extractTextFromPDF(file);
-      } else if (fileType === 'docx') {
-        text = await extractTextFromDOCX(file);
-      } else {
-        throw new Error('Unsupported file type. Please upload a PDF or DOCX file.');
-      }
-
-      if (!text.trim()) {
-        throw new Error('No text content could be extracted from the file');
-      }
-
+      setUploadProgress(50);
       const analysis = await analyzeDocument(text, file.name);
+      
       setResponse(analysis);
+      setUploadProgress(100);
       toast.success('Document analysis complete');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to process document';
