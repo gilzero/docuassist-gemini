@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 import { convertDocToDocx } from '@/utils/documentConverter';
 import { DropzoneContent } from './DropzoneContent';
+import { cn } from '@/lib/utils';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -67,14 +68,17 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
   return (
     <div
       {...getRootProps()}
-      className={`
-        relative rounded-lg border-2 border-dashed p-8 transition-all duration-200
-        ${isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 dark:border-gray-600'}
-        ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary/50'}
-      `}
+      className={cn(
+        'relative rounded-xl border-2 border-dashed p-10 transition-all duration-300',
+        'bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900',
+        'shadow-sm hover:shadow-md',
+        isDragActive ? 'border-primary bg-primary/5 scale-102' : 'border-gray-300 dark:border-gray-600',
+        isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary/50',
+        'group'
+      )}
     >
       <input {...getInputProps()} disabled={isDisabled} />
-      <div className="flex flex-col items-center gap-4 text-center">
+      <div className="flex flex-col items-center gap-6 text-center">
         <DropzoneContent isProcessing={isProcessing} isConverting={isConverting} />
       </div>
     </div>
