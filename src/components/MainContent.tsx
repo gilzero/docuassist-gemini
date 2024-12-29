@@ -15,6 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { processDocument } from '@/lib/documentProcessor';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -24,49 +25,21 @@ export const MainContent = () => {
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const extractTextFromPDF = async (file: File): Promise<string> => {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let text = '';
-    
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map((item: any) => item.str).join(' ') + '\n';
-      setUploadProgress(Math.round((i / pdf.numPages) * 100));
-    }
-    
-    return text;
-  };
-
-  const extractTextFromDOCX = async (file: File): Promise<string> => {
-    const arrayBuffer = await file.arrayBuffer();
-    const result = await mammoth.extractRawText({ arrayBuffer });
-    setUploadProgress(100);
-    return result.value;
-  };
-
   const handleFileSelect = async (file: File) => {
     setIsProcessing(true);
     setError(null);
     setUploadProgress(0);
     
     try {
-      let text = '';
-      const fileType = file.name.split('.').pop()?.toLowerCase();
+      // Process the document using Unstructured.io
+      const elements = await processDocument(file);
       
-      if (fileType === 'pdf') {
-        text = await extractTextFromPDF(file);
-      } else if (fileType === 'docx') {
-        text = await extractTextFromDOCX(file);
-      } else {
-        throw new Error('Unsupported file type. Please upload a PDF or DOCX file.');
-      }
+      // Convert elements to a format suitable for analysis
+      const text = elements
+        .map(element => element.text)
+        .join('\n');
 
-      if (!text.trim()) {
-        throw new Error('No text content could be extracted from the file');
-      }
-
+      // Analyze the processed text
       const analysis = await analyzeDocument(text, file.name);
       setResponse(analysis);
       toast.success('Document analysis complete');
