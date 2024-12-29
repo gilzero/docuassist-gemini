@@ -78,7 +78,21 @@ export const ResponseDisplay = ({ response }: ResponseDisplayProps) => {
                       "prose-strong:text-gray-900 dark:prose-strong:text-gray-100",
                       "prose-ul:list-disc prose-ul:pl-6",
                       "prose-ol:list-decimal prose-ol:pl-6",
-                      "prose-blockquote:border-l-4 prose-blockquote:border-gray-200 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic"
+                      "prose-blockquote:border-l-4 prose-blockquote:border-gray-200 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic",
+                      // Add specific styles for Chinese text
+                      "text-base leading-relaxed tracking-wide",
+                      "[&>*]:mb-4 last:[&>*]:mb-0",
+                      "[&_strong]:font-medium [&_strong]:text-gray-900 dark:text-gray-100",
+                      "[&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg",
+                      "[&_h1]:mb-6 [&_h2]:mb-4 [&_h3]:mb-3",
+                      "[&_ul]:space-y-2 [&_ol]:space-y-2",
+                      "[&_li]:pl-2",
+                      // Indent nested content
+                      "[&_ul_ul]:ml-4 [&_ol_ol]:ml-4",
+                      // Style for Chinese punctuation
+                      "[&_*]:break-words [&_*]:overflow-wrap-anywhere",
+                      // Better spacing for Chinese characters
+                      "[&_p]:leading-8"
                     )}>
                       <ReactMarkdown>
                         {section.split('\n').slice(1).join('\n')}
@@ -96,7 +110,21 @@ export const ResponseDisplay = ({ response }: ResponseDisplayProps) => {
               "prose-strong:text-gray-900 dark:prose-strong:text-gray-100",
               "prose-ul:list-disc prose-ul:pl-6",
               "prose-ol:list-decimal prose-ol:pl-6",
-              "prose-blockquote:border-l-4 prose-blockquote:border-gray-200 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic"
+              "prose-blockquote:border-l-4 prose-blockquote:border-gray-200 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic",
+              // Add specific styles for Chinese text
+              "text-base leading-relaxed tracking-wide",
+              "[&>*]:mb-4 last:[&>*]:mb-0",
+              "[&_strong]:font-medium [&_strong]:text-gray-900 dark:text-gray-100",
+              "[&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg",
+              "[&_h1]:mb-6 [&_h2]:mb-4 [&_h3]:mb-3",
+              "[&_ul]:space-y-2 [&_ol]:space-y-2",
+              "[&_li]:pl-2",
+              // Indent nested content
+              "[&_ul_ul]:ml-4 [&_ol_ol]:ml-4",
+              // Style for Chinese punctuation
+              "[&_*]:break-words [&_*]:overflow-wrap-anywhere",
+              // Better spacing for Chinese characters
+              "[&_p]:leading-8"
             )}>
               <ReactMarkdown>{response}</ReactMarkdown>
             </div>
