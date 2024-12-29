@@ -3,12 +3,18 @@ import { FileUpload } from './FileUpload';
 import { ResponseDisplay } from './ResponseDisplay';
 import { UploadProgress } from './UploadProgress';
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, FileText, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { analyzeDocument } from '@/lib/gemini';
 import { toast } from 'sonner';
 import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -112,7 +118,7 @@ export const MainContent = () => {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="max-w-md space-y-4"
+              className="max-w-md space-y-8"
             >
               <motion.div
                 animate={{ 
@@ -124,15 +130,49 @@ export const MainContent = () => {
                   repeat: Infinity,
                   repeatType: "reverse"
                 }}
+                className="relative"
               >
-                <AlertTriangle className="w-12 h-12 text-primary/50 mx-auto mb-4" />
+                <FileText className="w-16 h-16 text-primary/50 mx-auto mb-4" />
+                <motion.div
+                  className="absolute -top-2 -right-2"
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 1, 0.5]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity
+                  }}
+                >
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="w-6 h-6 text-primary" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Supported formats: PDF, DOCX</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </motion.div>
               </motion.div>
-              <p className="text-xl font-medium text-gray-600 dark:text-gray-300">
-                Ready to analyze your document
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Upload a PDF or DOCX file to see the AI magic happen
-              </p>
+              
+              <div className="space-y-4">
+                <h3 className="text-2xl font-medium text-gray-600 dark:text-gray-300">
+                  Ready to analyze your document
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Upload a PDF or DOCX file to see the AI magic happen. Our intelligent agent will analyze your content and provide detailed insights.
+                </p>
+                <div className="pt-4 space-y-2">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Quick Tips:</p>
+                  <ul className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+                    <li>• Maximum file size: 10MB</li>
+                    <li>• Drag and drop supported</li>
+                    <li>• Text should be machine-readable</li>
+                  </ul>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
