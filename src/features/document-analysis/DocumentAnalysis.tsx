@@ -7,10 +7,9 @@ import { analyzeDocument } from '@/lib/gemini';
 import { toast } from 'sonner';
 import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 export const DocumentAnalysis = () => {
   const [response, setResponse] = useState<string>('');
