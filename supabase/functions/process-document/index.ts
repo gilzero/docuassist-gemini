@@ -50,14 +50,11 @@ serve(async (req) => {
 
     console.log(`Processing file: ${file.name} (${file.size} bytes)`)
 
-    // Convert File to ArrayBuffer
-    const arrayBuffer = await file.arrayBuffer()
-
     // Create form data for Unstructured API
     const unstructuredFormData = new FormData()
-    unstructuredFormData.append('files', new Blob([arrayBuffer], { type: file.type }), file.name)
+    unstructuredFormData.append('files', new Blob([await file.arrayBuffer()], { type: file.type }), file.name)
     unstructuredFormData.append('strategy', 'fast')
-    unstructuredFormData.append('output_format', 'text')
+    unstructuredFormData.append('output_format', 'application/json')  // Changed from 'text' to 'application/json'
 
     // Call Unstructured API directly
     console.log('Calling Unstructured API...')
