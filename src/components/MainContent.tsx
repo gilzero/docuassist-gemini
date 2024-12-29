@@ -26,15 +26,25 @@ export const MainContent = () => {
       const formData = new FormData();
       formData.append('file', file);
 
+      setUploadProgress(25);
+      console.log('Sending file to process-document function:', file.name);
+
       // Process the document using Unstructured.io via Edge Function
       const { data, error: processError } = await supabase.functions.invoke('process-document', {
         body: formData,
       });
 
-      if (processError) throw processError;
-      if (!data?.elements) throw new Error('No text content could be extracted from the file');
+      if (processError) {
+        console.error('Process error:', processError);
+        throw processError;
+      }
+
+      if (!data?.elements) {
+        throw new Error('No text content could be extracted from the file');
+      }
 
       setUploadProgress(50);
+      console.log('Document processed, analyzing content...');
 
       // Convert elements to text
       const text = data.elements
@@ -54,7 +64,7 @@ export const MainContent = () => {
       console.error('Document processing error:', error);
     } finally {
       setIsProcessing(false);
-      setUploadProgress(0);
+      setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 
@@ -74,7 +84,7 @@ export const MainContent = () => {
           <FileUpload onFileSelect={handleFileSelect} isProcessing={isProcessing} />
         </motion.div>
         
-        {uploadProgress > 0 && !isProcessing && (
+        {uploadProgress > 0 && (
           <div role="progressbar" 
                aria-valuenow={uploadProgress} 
                aria-valuemin={0} 
