@@ -8,7 +8,7 @@ export const Header = () => {
       role="banner"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6 relative"
+      className="text-center space-y-6 relative"
       aria-label="Document Analysis Application Header"
     >
       <div 

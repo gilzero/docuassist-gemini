@@ -5,7 +5,7 @@ export const HeaderContent = () => {
   return (
     <>
       <motion.h2 
-        className="text-2xl font-medium text-gray-800 dark:text-gray-200 flex items-start gap-2"
+        className="text-2xl font-medium text-gray-800 dark:text-gray-200 flex items-center justify-center gap-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -28,7 +28,7 @@ export const HeaderContent = () => {
       </motion.h2>
 
       <motion.p 
-        className="text-lg text-gray-800 dark:text-gray-200 max-w-2xl leading-relaxed"
+        className="text-lg text-gray-800 dark:text-gray-200 max-w-2xl mx-auto leading-relaxed"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
