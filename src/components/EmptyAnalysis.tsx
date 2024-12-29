@@ -48,7 +48,7 @@ export const EmptyAnalysis = () => (
                 </button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Supported formats: PDF, DOCX</p>
+                <p>Supported formats: PDF, DOCX, DOC, TXT</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -60,12 +60,13 @@ export const EmptyAnalysis = () => (
           Ready to analyze your document
         </h3>
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          Upload a PDF or DOCX file to see the AI magic happen. Our intelligent agent will analyze your content and provide detailed insights.
+          Upload a document to see the AI magic happen. Our intelligent agent will analyze your content and provide detailed insights.
         </p>
         <div className="pt-4 space-y-2">
           <p className="text-xs text-gray-600 dark:text-gray-400">Quick Tips:</p>
           <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1" role="list">
             <li role="listitem">• Maximum file size: 10MB</li>
+            <li role="listitem">• Supports PDF, DOCX, DOC, and TXT files</li>
             <li role="listitem">• Drag and drop supported</li>
             <li role="listitem">• Text should be machine-readable</li>
           </ul>
@@ -74,5 +75,3 @@ export const EmptyAnalysis = () => (
     </motion.div>
   </div>
 );
-
-export default EmptyAnalysis;

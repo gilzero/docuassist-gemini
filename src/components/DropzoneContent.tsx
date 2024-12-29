@@ -27,7 +27,7 @@ export const DropzoneContent = ({ isProcessing, isConverting }: DropzoneContentP
           </p>
           <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
             <Server className="h-3 w-3" />
-            <span>Processing in Singapore region</span>
+            <span>Processing with Unstructured.io</span>
           </div>
         </div>
       </motion.div>
@@ -56,7 +56,7 @@ export const DropzoneContent = ({ isProcessing, isConverting }: DropzoneContentP
       </div>
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-2 rounded-full">
         <FileText className="h-4 w-4" />
-        <span>Supports .doc, .docx, and .pdf</span>
+        <span>Supports .pdf, .docx, .doc, and .txt</span>
       </div>
     </motion.div>
   );

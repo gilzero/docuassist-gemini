@@ -22,13 +22,8 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
     }
 
     const fileType = file.name.split('.').pop()?.toLowerCase();
-    if (fileType === 'doc') {
-      toast.error('Legacy .doc files are not supported. Please convert to .docx first');
-      return;
-    }
-    
-    if (!['pdf', 'docx'].includes(fileType || '')) {
-      toast.error('Please upload a .docx or .pdf file');
+    if (!['pdf', 'docx', 'doc', 'txt'].includes(fileType || '')) {
+      toast.error('Please upload a .pdf, .docx, .doc, or .txt file');
       return;
     }
 
@@ -46,7 +41,9 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
     onDragLeave: () => setIsDragActive(false),
     accept: {
       'application/pdf': ['.pdf'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'application/msword': ['.doc'],
+      'text/plain': ['.txt']
     },
     multiple: false
   });
