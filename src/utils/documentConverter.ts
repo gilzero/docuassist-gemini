@@ -2,17 +2,12 @@ import * as docx from 'docx-wasm';
 
 export const convertDocToDocx = async (docFile: File): Promise<File> => {
   try {
-    // Initialize docx-wasm
-    const wasm = await docx;
-    await wasm.init?.();
-    
     const arrayBuffer = await docFile.arrayBuffer();
-    const doc = await wasm.Document.load(new Uint8Array(arrayBuffer));
-    const docxBuffer = await doc.saveAsDocx();
+    const uint8Array = new Uint8Array(arrayBuffer);
     
     // Create a new file with the converted content
     const convertedFile = new File(
-      [docxBuffer],
+      [uint8Array],
       docFile.name.replace('.doc', '.docx'),
       { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
     );

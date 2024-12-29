@@ -15,6 +15,11 @@ export async function analyzeDocument(fileContent: string, fileName: string) {
       throw new Error(data.error);
     }
 
+    // Log server location information
+    if (data.serverLocation) {
+      console.log('Edge Function Location:', data.serverLocation);
+    }
+
     return data.text;
   } catch (error) {
     console.error('Error analyzing document:', error);

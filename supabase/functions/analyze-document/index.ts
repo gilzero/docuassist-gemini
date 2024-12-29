@@ -13,6 +13,15 @@ serve(async (req) => {
   }
 
   try {
+    // Get server location information
+    const locationResponse = await fetch('http://ipapi.co/json/');
+    const locationData = await locationResponse.json();
+    console.log('Server Location:', {
+      city: locationData.city,
+      region: locationData.region,
+      country: locationData.country_name
+    });
+
     const apiKey = Deno.env.get('VITE_GEMINI_API_KEY');
     if (!apiKey) {
       throw new Error('Gemini API key not configured');
@@ -46,7 +55,8 @@ Filename: ${fileName}`;
     const response = await result.response;
     
     return new Response(JSON.stringify({ 
-      text: response.text() 
+      text: response.text(),
+      serverLocation: locationData
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
