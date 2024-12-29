@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import mammoth from 'mammoth';
 
 export const convertDocToDocx = async (docFile: File): Promise<File> => {
   try {
