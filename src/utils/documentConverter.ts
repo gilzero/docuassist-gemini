@@ -9,11 +9,18 @@ export const convertDocToDocx = async (file: File): Promise<File> => {
 
     const { data, error } = await supabase.functions.invoke('convert-document', {
       body: formData,
+      headers: {
+        'Accept': 'application/pdf',
+      },
     });
 
     if (error) {
       console.error('Document conversion error:', error);
       throw error;
+    }
+
+    if (!data) {
+      throw new Error('No data received from conversion service');
     }
 
     // Create a new file from the response blob

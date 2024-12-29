@@ -19,7 +19,6 @@ async function getAdobeAccessToken(clientId: string, clientSecret: string) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Cache-Control': 'no-cache',
       },
       body: formData.toString(),
     });
@@ -40,12 +39,27 @@ async function getAdobeAccessToken(clientId: string, clientSecret: string) {
 }
 
 async function convertToPDF(file: File, token: string, clientId: string) {
-  console.log('Starting PDF conversion...');
+  console.log('Starting PDF conversion...', {
+    fileName: file.name,
+    fileType: file.type,
+    fileSize: file.size
+  });
   
   try {
+    // Create a new FormData instance for the file upload
     const formData = new FormData();
-    formData.append('file', file);
+    
+    // Ensure proper content type for Word documents
+    const contentType = file.type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    
+    // Create a new Blob with the correct content type
+    const blob = new Blob([await file.arrayBuffer()], { type: contentType });
+    
+    // Append the file with the correct content type
+    formData.append('file', blob, file.name);
 
+    console.log('Sending request to Adobe PDF Services API...');
+    
     const response = await fetch('https://pdf-services.adobe.io/operation/createpdf', {
       method: 'POST',
       headers: {
@@ -78,6 +92,7 @@ serve(async (req) => {
   try {
     console.log('Starting document conversion process');
     
+    // Get Adobe credentials from environment variables
     const clientId = Deno.env.get('PDF_SERVICES_CLIENT_ID');
     const clientSecret = Deno.env.get('PDF_SERVICES_CLIENT_SECRET');
 
@@ -88,6 +103,7 @@ serve(async (req) => {
 
     console.log('Got Adobe credentials from environment');
 
+    // Get the uploaded file from the request
     const formData = await req.formData();
     const file = formData.get('file');
 
@@ -96,7 +112,11 @@ serve(async (req) => {
       throw new Error('No valid file uploaded');
     }
 
-    console.log('File received:', file.name);
+    console.log('File received:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
 
     // Get Adobe access token
     const token = await getAdobeAccessToken(clientId, clientSecret);
@@ -104,6 +124,7 @@ serve(async (req) => {
     // Convert the document
     const pdfBlob = await convertToPDF(file, token, clientId);
 
+    // Return the converted PDF
     return new Response(pdfBlob, {
       headers: {
         ...corsHeaders,
