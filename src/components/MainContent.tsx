@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { processDocument } from '@/services/documentProcessingService';
 import { analyzeDocument } from '@/services/analysisService';
 import { validateFile } from '@/services/fileValidationService';
+import { EmptyAnalysis } from './EmptyAnalysis';
 
 export const MainContent = () => {
   const [response, setResponse] = useState<string>('');
