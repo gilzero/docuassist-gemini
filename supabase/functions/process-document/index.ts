@@ -36,6 +36,8 @@ serve(async (req) => {
       )
     }
 
+    console.log('API Key present:', !!apiKey) // Log presence without exposing the key
+
     // Get and validate form data
     const formData = await req.formData()
     const file = formData.get('file')
@@ -56,13 +58,13 @@ serve(async (req) => {
     unstructuredFormData.append('strategy', 'fast')
     unstructuredFormData.append('output_format', 'application/json')
 
-    // Call Unstructured API directly with proper authentication
+    // Call Unstructured API with Bearer token authentication
     console.log('Calling Unstructured API...')
     const unstructuredResponse = await fetch('https://api.unstructured.io/general/v0/general', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'unstructured-api-key': apiKey  // Using the correct header for authentication
+        'Authorization': `Bearer ${apiKey}` // Changed to use Bearer token authentication
       },
       body: unstructuredFormData
     })
