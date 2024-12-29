@@ -64,7 +64,7 @@ serve(async (req) => {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${apiKey}` // Changed to use Bearer token authentication
+        'unstructured-api-key': apiKey // Using the correct header name
       },
       body: unstructuredFormData
     })
