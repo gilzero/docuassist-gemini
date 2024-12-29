@@ -1,46 +1,25 @@
 import { supabase } from '@/integrations/supabase/client';
-import mammoth from 'mammoth';
 
-export const convertDocToDocx = async (docFile: File): Promise<File> => {
+export const convertDocToDocx = async (file: File): Promise<File> => {
   try {
-    // For .doc files, use Adobe PDF Services API
-    if (docFile.name.toLowerCase().endsWith('.doc')) {
-      console.log('Starting .doc conversion process');
-      const formData = new FormData();
-      formData.append('file', docFile);
+    console.log('Starting document conversion for file:', file.name);
+    
+    const formData = new FormData();
+    formData.append('file', file);
 
-      const { data, error } = await supabase.functions.invoke('convert-document', {
-        body: formData,
-      });
+    const { data, error } = await supabase.functions.invoke('convert-document', {
+      body: formData,
+    });
 
-      if (error) {
-        console.error('Conversion error:', error);
-        throw error;
-      }
-
-      if (!data?.success) {
-        throw new Error(data?.error || 'Conversion failed');
-      }
-
-      // Create a new file with the converted content
-      const convertedBlob = new Blob([data.data], { 
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
-      });
-      
-      return new File([convertedBlob], docFile.name.replace('.doc', '.docx'), { 
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
-      });
+    if (error) {
+      console.error('Document conversion error:', error);
+      throw error;
     }
-    
-    // For .docx files, use existing mammoth conversion
-    const arrayBuffer = await docFile.arrayBuffer();
-    const result = await mammoth.extractRawText({ arrayBuffer });
-    const plainText = result.value;
-    
-    // Create a new file with the converted content
-    const blob = new Blob([plainText], { type: 'text/plain' });
-    return new File([blob], docFile.name.replace('.docx', '.txt'), { 
-      type: 'text/plain' 
+
+    // Create a new file from the response blob
+    const blob = new Blob([data], { type: 'application/pdf' });
+    return new File([blob], file.name.replace(/\.[^/.]+$/, '.pdf'), { 
+      type: 'application/pdf'
     });
   } catch (error) {
     console.error('Conversion error:', error);
