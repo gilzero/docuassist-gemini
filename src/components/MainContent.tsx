@@ -6,9 +6,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { processDocument } from '@/services/documentProcessingService';
-import { analyzeDocument } from '@/services/analysisService';
-import { validateFile } from '@/services/fileValidationService';
+import { analyzeDocument } from '@/lib/gemini';
+import { supabase } from '@/integrations/supabase/client';
 import { EmptyAnalysis } from './EmptyAnalysis';
 
 export const MainContent = () => {
@@ -23,18 +22,27 @@ export const MainContent = () => {
     setUploadProgress(0);
     
     try {
-      // Validate file
-      const validation = validateFile(file);
-      if (!validation.isValid) {
-        throw new Error(validation.error);
-      }
+      // Create form data for the file
+      const formData = new FormData();
+      formData.append('file', file);
 
-      // Process the document
-      const processedText = await processDocument(file);
+      // Process the document using Unstructured.io via Edge Function
+      const { data, error: processError } = await supabase.functions.invoke('process-document', {
+        body: formData,
+      });
+
+      if (processError) throw processError;
+      if (!data?.elements) throw new Error('No text content could be extracted from the file');
+
       setUploadProgress(50);
 
+      // Convert elements to text
+      const text = data.elements
+        .map(element => element.text)
+        .join('\n');
+
       // Analyze the processed text
-      const analysis = await analyzeDocument(processedText, file.name);
+      const analysis = await analyzeDocument(text, file.name);
       setResponse(analysis);
       setUploadProgress(100);
       

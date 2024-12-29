@@ -39,7 +39,8 @@ serve(async (req) => {
 
     // Get the file data from the request
     const formData = await req.formData()
-    const file = formData.get('file') as File
+    const file = formData.get('file')
+
     if (!file) {
       throw new Error('No file provided')
     }

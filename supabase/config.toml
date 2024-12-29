@@ -1,4 +1,4 @@
 project_id = "dxrfbyfdiusjawpplzen"
 
-[functions.convert-document]
+[functions.process-document]
 verify_jwt = false
