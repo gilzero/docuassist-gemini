@@ -3,12 +3,16 @@ import { motion } from 'framer-motion';
 
 export const Header = () => {
   return (
-    <motion.div 
+    <motion.header 
+      role="banner"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       className="text-center space-y-6 relative"
+      aria-label="Document Analysis Application Header"
     >
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-50/50 via-indigo-50/50 to-purple-50/50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 blur-3xl" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-50/50 via-indigo-50/50 to-purple-50/50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 blur-3xl" 
+           aria-hidden="true" 
+      />
       
       <div className="flex items-center justify-center gap-3 mb-2">
         <motion.div
@@ -23,6 +27,7 @@ export const Header = () => {
           }}
           whileHover={{ scale: 1.2 }}
           className="relative"
+          aria-hidden="true"
         >
           <Brain className="w-12 h-12 text-primary" />
           <motion.div
@@ -49,7 +54,7 @@ export const Header = () => {
       </div>
 
       <motion.h2 
-        className="text-2xl font-medium text-gray-600 dark:text-gray-300 flex items-center justify-center gap-2"
+        className="text-2xl font-medium text-gray-800 dark:text-gray-200 flex items-center justify-center gap-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -65,13 +70,14 @@ export const Header = () => {
             repeat: Infinity,
             repeatType: "reverse"
           }}
+          aria-hidden="true"
         >
           <Sparkles className="w-5 h-5 text-yellow-500" />
         </motion.span>
       </motion.h2>
 
       <motion.p 
-        className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed"
+        className="text-lg text-gray-800 dark:text-gray-200 max-w-2xl mx-auto leading-relaxed"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
@@ -84,7 +90,8 @@ export const Header = () => {
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ delay: 0.6 }}
+        aria-hidden="true"
       />
-    </motion.div>
+    </motion.header>
   );
 };

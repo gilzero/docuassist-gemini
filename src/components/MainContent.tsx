@@ -82,10 +82,12 @@ export const MainContent = () => {
   };
 
   return (
-    <motion.div 
+    <motion.main 
+      role="main"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="grid lg:grid-cols-2 gap-8"
+      aria-label="Document Upload and Analysis Section"
     >
       <div className="space-y-6">
         <motion.div
@@ -96,11 +98,22 @@ export const MainContent = () => {
         </motion.div>
         
         {uploadProgress > 0 && !isProcessing && (
-          <UploadProgress progress={uploadProgress} />
+          <div role="progressbar" 
+               aria-valuenow={uploadProgress} 
+               aria-valuemin={0} 
+               aria-valuemax={100}
+          >
+            <UploadProgress progress={uploadProgress} />
+          </div>
         )}
         
         {error && (
-          <Alert variant="destructive" className="animate-in slide-in-from-top-5">
+          <Alert 
+            variant="destructive" 
+            className="animate-in slide-in-from-top-5"
+            role="alert"
+            aria-live="assertive"
+          >
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -110,6 +123,8 @@ export const MainContent = () => {
       <motion.div
         whileHover={{ scale: 1.01 }}
         className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/90 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-lg h-[calc(100vh-16rem)] min-h-[500px]"
+        role="region"
+        aria-label="Analysis Results"
       >
         {response ? (
           <ResponseDisplay response={response} />
@@ -131,6 +146,7 @@ export const MainContent = () => {
                   repeatType: "reverse"
                 }}
                 className="relative"
+                aria-hidden="true"
               >
                 <FileText className="w-16 h-16 text-primary/50 mx-auto mb-4" />
                 <motion.div
@@ -146,8 +162,10 @@ export const MainContent = () => {
                 >
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="w-6 h-6 text-primary" />
+                      <TooltipTrigger asChild>
+                        <button aria-label="View supported file formats">
+                          <HelpCircle className="w-6 h-6 text-primary" />
+                        </button>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Supported formats: PDF, DOCX</p>
@@ -158,18 +176,18 @@ export const MainContent = () => {
               </motion.div>
               
               <div className="space-y-4">
-                <h3 className="text-2xl font-medium text-gray-600 dark:text-gray-300">
+                <h3 className="text-2xl font-medium text-gray-800 dark:text-gray-200">
                   Ready to analyze your document
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   Upload a PDF or DOCX file to see the AI magic happen. Our intelligent agent will analyze your content and provide detailed insights.
                 </p>
                 <div className="pt-4 space-y-2">
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Quick Tips:</p>
-                  <ul className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
-                    <li>• Maximum file size: 10MB</li>
-                    <li>• Drag and drop supported</li>
-                    <li>• Text should be machine-readable</li>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Quick Tips:</p>
+                  <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1" role="list">
+                    <li role="listitem">• Maximum file size: 10MB</li>
+                    <li role="listitem">• Drag and drop supported</li>
+                    <li role="listitem">• Text should be machine-readable</li>
                   </ul>
                 </div>
               </div>
@@ -177,6 +195,6 @@ export const MainContent = () => {
           </div>
         )}
       </motion.div>
-    </motion.div>
+    </motion.main>
   );
 };
