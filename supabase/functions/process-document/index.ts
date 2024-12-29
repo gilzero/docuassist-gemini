@@ -29,9 +29,9 @@ serve(async (req) => {
     // Get API key
     const apiKey = Deno.env.get('UNSTRUCTURED_API_KEY')
     if (!apiKey) {
-      console.error('Missing API key')
+      console.error('Missing Unstructured API key')
       return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
+        JSON.stringify({ error: 'Missing API configuration' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -54,15 +54,15 @@ serve(async (req) => {
     const unstructuredFormData = new FormData()
     unstructuredFormData.append('files', new Blob([await file.arrayBuffer()], { type: file.type }), file.name)
     unstructuredFormData.append('strategy', 'fast')
-    unstructuredFormData.append('output_format', 'application/json')  // Changed from 'text' to 'application/json'
+    unstructuredFormData.append('output_format', 'application/json')
 
-    // Call Unstructured API directly
+    // Call Unstructured API directly with proper authentication
     console.log('Calling Unstructured API...')
     const unstructuredResponse = await fetch('https://api.unstructured.io/general/v0/general', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'unstructured-api-key': apiKey
+        'unstructured-api-key': apiKey  // Using the correct header for authentication
       },
       body: unstructuredFormData
     })
