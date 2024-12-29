@@ -5,6 +5,7 @@ export const convertDocToDocx = async (docFile: File): Promise<File> => {
   try {
     // For .doc files, use Adobe PDF Services API
     if (docFile.name.toLowerCase().endsWith('.doc')) {
+      console.log('Starting .doc conversion process');
       const formData = new FormData();
       formData.append('file', docFile);
 
@@ -12,11 +13,20 @@ export const convertDocToDocx = async (docFile: File): Promise<File> => {
         body: formData,
       });
 
-      if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || 'Conversion failed');
+      if (error) {
+        console.error('Conversion error:', error);
+        throw error;
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Conversion failed');
+      }
 
       // Create a new file with the converted content
-      const convertedBlob = new Blob([data.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const convertedBlob = new Blob([data.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+      });
+      
       return new File([convertedBlob], docFile.name.replace('.doc', '.docx'), { 
         type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
       });

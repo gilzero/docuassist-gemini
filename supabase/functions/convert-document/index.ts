@@ -8,11 +8,13 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    console.log('Starting document conversion process')
     const formData = await req.formData()
     const file = formData.get('file')
 
@@ -20,6 +22,7 @@ serve(async (req) => {
       throw new Error('No file uploaded')
     }
 
+    console.log('Initializing Adobe PDF Services')
     const credentials = PDFServicesSdk.Credentials
       .servicePrincipalCredentialsBuilder()
       .withClientId(Deno.env.get('PDF_SERVICES_CLIENT_ID'))
@@ -27,35 +30,49 @@ serve(async (req) => {
       .build()
 
     const executionContext = PDFServicesSdk.ExecutionContext.create(credentials)
-    const operation = PDFServicesSdk.ExportPDF.Operation.createNew()
+    const operation = PDFServicesSdk.CreatePDF.Operation.createNew()
 
-    // If it's a DOC file, we'll convert it to DOCX first
-    const fileExt = file.name.split('.').pop()?.toLowerCase()
-    if (fileExt === 'doc') {
-      operation.setInput(file)
-      operation.setOptions(PDFServicesSdk.ExportPDF.options.docx())
-      
-      const result = await operation.execute(executionContext)
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'File converted successfully',
-          data: result 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+    // Set up the input word document
+    const input = PDFServicesSdk.FileRef.createFromStream(
+      file.stream(),
+      PDFServicesSdk.CreatePDF.SupportedSourceFormat.DOC
+    )
+    operation.setInput(input)
 
-    throw new Error('Unsupported file type')
+    // Execute the operation
+    console.log('Executing conversion operation')
+    const result = await operation.execute(executionContext)
+    
+    // Get the converted content
+    const convertedContent = await result.getContent()
+
+    console.log('Conversion successful')
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        data: convertedContent,
+        message: 'Document converted successfully' 
+      }),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
+    )
+
   } catch (error) {
-    console.error('Document conversion error:', error)
+    console.error('Conversion error:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 
         error: error.message || 'Failed to convert document' 
       }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
         status: 500 
       }
     )

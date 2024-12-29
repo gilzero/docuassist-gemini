@@ -1,5 +1,3 @@
 project_id = "dxrfbyfdiusjawpplzen"
-[functions.analyze-document]
-region = "southeast-asia"
 [functions.convert-document]
-region = "southeast-asia"
+verify_jwt = false
