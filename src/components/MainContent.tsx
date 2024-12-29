@@ -22,16 +22,21 @@ export const MainContent = () => {
     setUploadProgress(0);
     
     try {
-      // Create form data for the file
+      setUploadProgress(25);
+      console.log('Preparing to send file:', file.name);
+
+      // Create form data
       const formData = new FormData();
       formData.append('file', file);
 
-      setUploadProgress(25);
-      console.log('Sending file to process-document function:', file.name);
-
-      // Process the document using Unstructured.io via Edge Function
+      console.log('Sending file to process-document function...');
+      
+      // Process the document using Edge Function
       const { data, error: processError } = await supabase.functions.invoke('process-document', {
         body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
       if (processError) {
@@ -40,6 +45,7 @@ export const MainContent = () => {
       }
 
       if (!data?.elements) {
+        console.error('No elements in response:', data);
         throw new Error('No text content could be extracted from the file');
       }
 
