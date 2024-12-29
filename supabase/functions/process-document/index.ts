@@ -5,6 +5,7 @@ import { Strategy } from "npm:unstructured-client/sdk/models/shared"
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
 serve(async (req) => {
@@ -32,7 +33,7 @@ serve(async (req) => {
           initialInterval: 500,
           maxInterval: 60000,
           exponent: 1.5,
-          maxElapsedTime: 900000, // 15 minutes
+          maxElapsedTime: 900000,
         },
       }
     })
@@ -40,14 +41,18 @@ serve(async (req) => {
     // Get the file data from the request
     const formData = await req.formData()
     const file = formData.get('file')
-
-    if (!file) {
-      throw new Error('No file provided')
+    
+    if (!file || !(file instanceof File)) {
+      throw new Error('No valid file provided')
     }
+
+    console.log('Processing file:', file.name, 'Size:', file.size)
 
     // Convert File to Uint8Array for processing
     const arrayBuffer = await file.arrayBuffer()
     const content = new Uint8Array(arrayBuffer)
+
+    console.log('Starting Unstructured.io processing')
 
     // Process the document
     const response = await client.general.partition({
@@ -67,6 +72,8 @@ serve(async (req) => {
       }
     })
 
+    console.log('Unstructured.io processing complete')
+
     if (response.statusCode !== 200) {
       throw new Error('Failed to process document')
     }
@@ -82,8 +89,12 @@ serve(async (req) => {
     )
   } catch (error) {
     console.error('Error processing document:', error)
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }),
       { 
         status: 500,
         headers: { 
